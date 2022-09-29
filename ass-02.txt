@@ -1,0 +1,294 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
+
+contract Election2022 {
+
+    struct Candidate{
+
+        bool approved;
+
+        address id;
+
+        uint voteCount;
+
+        string candidateName;
+
+    }
+    
+
+    mapping (address=>bool) public voters;
+
+    mapping (uint=> Candidate)public candidates;
+
+    address ecadmin;
+
+    address payable ec;
+
+    uint public candidatesCount;
+
+    uint256 public startTime;
+
+    uint256 public stopTime;
+
+
+    constructor( address _admin) {
+
+        require(_admin != address(0), "invalid address");
+
+        assert(_admin != 0x0000000000000000000000000000000000000001);
+
+        ecadmin = _admin;
+
+    }
+
+
+    modifier ecOnly() {
+        require(msg.sender == address(ec),"EC only operation");
+        _;
+    }
+
+
+    modifier ecAdminOnly() {
+        require(msg.sender == ecadmin,"EC admin only operation");
+        _;
+    }
+
+
+    function setEC(address _ec) public ecAdminOnly {
+        ec = payable(_ec);
+    }
+
+
+    function addCandidate(string memory _name) public payable returns(string memory)  {
+        require(bytes(_name).length>2,"invalid name");
+        require(msg.value == 1 ether,"Appropraite ether not next");
+
+        candidatesCount++;
+
+        candidates[candidatesCount]=Candidate(false,msg.sender,0,_name);
+
+        // (bool success, ) = ec.call{value: msg.value}("");
+        
+        bool success = payable(ec).send(msg.value);
+
+        // payable(ec).transfer(msg.value);
+
+        require(success, "Failed to send Ether");
+        return "success";
+    }   
+
+
+    function approveCandidiate(uint256 num) external ecOnly {
+
+        require(candidates[num].id != address(0x00), "Not registered" );
+
+        require(candidates[num].approved == false, "Already approved" );
+
+        candidates[num].approved = true;
+
+    }
+
+    event consolePrint(string, uint256);
+
+    function setStart(uint256 num) external ecOnly {
+
+        require(num > block.timestamp,"Start at later time" );
+
+        startTime = num;
+
+        emit consolePrint("Voting starts at: ", startTime);
+
+    }
+
+
+    function setStop(uint256 num) external ecOnly {
+
+        require(num > block.timestamp && num > startTime,"Stop at later time" );
+
+        stopTime = num;
+
+        emit consolePrint("Voting ends at: ", stopTime);
+
+    }
+
+
+    event consolePrint( string, address);
+
+    function vote(uint _candidateId) public{
+
+        require(block.timestamp > startTime,"Election not started" );
+
+        require(block.timestamp <= stopTime,"Election over" );
+
+        require(voters[msg.sender] == false, "Already voted");
+
+        require(candidates[_candidateId].id != address(0x00), "Not registered condidate" );
+
+        require(candidates[_candidateId].approved == true, "Dont vote not approved" );
+
+        voters[msg.sender] == true;
+
+        candidates[_candidateId].voteCount++;
+
+        emit consolePrint("value of sender is ",msg.sender);
+
+    }
+
+
+    function getResults() public view returns (Candidate memory candidate) {
+
+        require(block.timestamp >= stopTime,"Election yet to finish" );
+
+        uint256 c;
+
+        uint256 max=0;
+
+        for( uint i =1; i<=candidatesCount; i++) {
+
+            if ( candidates[i].voteCount > max ) {
+
+                max = candidates[i].voteCount;
+
+                c = i;
+
+            }
+        }
+
+        return candidates[c];
+    }
+
+
+    function kill() external ecOnly{
+
+        selfdestruct(payable(msg.sender));
+
+    }
+
+}
+
+contract error {
+    event Log(string message);
+    
+
+    Election2022 public foo;
+
+    constructor() {
+        // This Foo contract is used for example of try catch with external call
+        foo = new Election2022(msg.sender);
+    }
+
+    function tryCatchExternalCall(string memory _name) public {
+        try foo.addCandidate(_name) returns (string memory result) {
+            emit Log(result);
+        } catch Error(string memory) {
+            emit Log("Name should be more than 3 char");
+        }
+    }
+    function ab() public{
+        try foo.getResults() {
+            emit Log("external fuction called");
+        }catch Error(string memory a){
+            emit Log(a);
+        }
+    }
+    
+
+
+}
+======================================================================================================================
+
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
+
+interface Election {
+    function approveCandidiate(uint256 num) external;
+
+    function setStart(uint256 start) external;
+
+    function setStop(uint256 stop) external;
+
+    function getResults() external;
+
+    function kill() external;
+
+}
+
+
+contract ElectionCommision {
+    
+    address public admin;
+    
+    constructor() {
+
+        admin = msg.sender;
+
+    }
+
+
+    modifier adminOnly() {
+
+        require(msg.sender == admin,"No admin");
+
+        _;
+
+    }
+
+    event consolePrint( string, uint, string);
+
+    function approveCandidate(address election, uint256 id) public adminOnly {
+
+        require(election != address(0),"Invalid Address");
+
+        Election e = Election(election);
+
+        e.approveCandidiate(id);
+
+         emit consolePrint("Candidate with the Id: ", id," has been approved");
+
+    }
+
+
+    function setStart(address election, uint256 time) public adminOnly {
+
+        Election e = Election(election);
+
+        e.setStart(time);
+
+    }
+
+
+    function setStop(address election, uint256 time) public adminOnly {
+
+        Election e = Election(election);
+
+        e.setStop(time);
+
+    }
+
+
+    function withdraw() public {
+
+        uint amount = address(this).balance;
+
+        (bool success, ) = admin.call{value: amount}("");
+
+        require(success, "Failed to send Ether");
+
+    }
+
+
+    function kill(address election) public adminOnly{
+
+        Election e = Election(election);
+
+        e.kill();
+
+    }
+
+
+    receive() external payable {}
+
+    
+    fallback() external payable {}
+
+}
