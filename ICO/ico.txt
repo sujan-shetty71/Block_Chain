@@ -1,1 +1,61 @@
 
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.13;
+
+contract ICO {
+
+    address owner;
+
+    uint totalNumofToken;
+
+    string name = "Sakha";
+
+    string symbol = "SA";
+
+    uint64 public Tokenprice = 1 ether;
+
+    mapping(address=>uint) balances;
+
+
+    constructor(uint _total) {
+
+        totalNumofToken = _total;
+
+        balances[msg.sender] = _total;
+
+        owner = msg.sender;
+
+    }
+    modifier valuetobe(uint tokens){
+        require(msg.value == (Tokenprice * tokens), " not sufficient bal");
+           _;
+    }
+    modifier balancetobe(uint tokens){
+        require((balances[owner] > tokens) , " Tokens are not available");
+        _;
+    }
+
+  
+
+
+    function Buyer(uint tokens, address _buy) external payable valuetobe(tokens) balancetobe(tokens){
+
+        balances[owner] = balances[owner] - tokens;
+
+        balances[_buy] = balances[_buy] + tokens;
+
+    }
+
+    function getBalance(address someone) public view returns (uint) {
+
+        return balances[someone];
+
+    }
+
+
+    receive() external payable {}
+
+    fallback() external payable {}
+    
+}
