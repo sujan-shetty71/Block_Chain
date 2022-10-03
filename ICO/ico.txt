@@ -36,7 +36,11 @@ contract ICO {
         _;
     }
 
-  
+  function getBalance(address someone) public view returns (uint) {
+
+        return balances[someone];
+
+    }
 
 
     function Buyer(uint tokens, address _buy) external payable valuetobe(tokens) balancetobe(tokens){
@@ -47,11 +51,7 @@ contract ICO {
 
     }
 
-    function getBalance(address someone) public view returns (uint) {
-
-        return balances[someone];
-
-    }
+    
 
 
     receive() external payable {}
