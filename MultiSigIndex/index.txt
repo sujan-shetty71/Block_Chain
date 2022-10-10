@@ -25,7 +25,7 @@
     <body>
 
         <div>
-            <h1>MultiSigWallet</h1></h1>
+            <h1>MultiSigWallet</h1>
             <button onclick="buy()">getOwners</button>
             <label for="currentPrice" id="currentPrice"> </label> <br />
             <button onclick="appcount()"> ApprovalCount</button>
@@ -37,13 +37,13 @@
                 <button onclick="submit()">submitTransaction</button>
       
 
-            <input type="text" id="ap" />
+            <input type="text" id="ap" placeholder="index" />
             <button onclick="approve()">approve</button>
-            <input type="text" id="ex" />
+            <input type="text" id="ex" placeholder="index" />
             <button onclick="execute()">executeTransaction</button>
-            <input type="text" id="re" />
+            <input type="text" id="re" placeholder="index"/>
             <button onclick="revert()">revertApproval</button>
-            <input type="text" id="tr" />
+            <input type="text" id="tr" placeholder="index"/>
             <button onclick="transactions()">transactions</button>
         </div>
         <div>
@@ -65,14 +65,14 @@
     <script>
  
  
-        let StepUpTokenSaleContract;
+        let MultiSigWallet;
         let signer;
         let provider;
         let accounts;
-        let StepUpTokenSaleContractABI;
-        let StepUpTokenSaleContractAddress;
-       // let data="0xe73620c3000000000000000000000000000000000000000000000000000000000000007b";
-       // let aamount2 ="0xCfAefD773F5ec5A7a92DDA13da7890B473B66180";
+        let MultiSigWalletABI;
+        let MultiSigWalletAddress;
+        let data="0xe73620c3000000000000000000000000000000000000000000000000000000000000007b";
+        let aamount2 ="0xCfAefD773F5ec5A7a92DDA13da7890B473B66180";
         // async function doInit() {
         //     StepUpTokenSaleContractAddress = "'0xD711817192CEF68CF171d4a5dE71dca824acF23D'";
         //     StepUpTokenSaleContractABI = [
@@ -197,13 +197,13 @@
     
  
         async function buy() {
-            const price = await StepUpTokenSaleContract.getOwners();
+           const price = await MultiSigWallet.getOwners();
             console.log(price.toString());
 			alert(price.toString());
             
         }
         async function appcount() {
-            const price = await StepUpTokenSaleContract.approvalcount();
+            const price = await MultiSigWallet.approvalcount();
              console.log(price.toString());
              alert(price.toString());
 		 }
@@ -220,29 +220,29 @@
         async function approve() {
             const amount = document.getElementById("ap").value;
             
-            console.log(await StepUpTokenSaleContract.approveTransaction(amount));
+            console.log(await MultiSigWallet.approveTransaction(amount));
         }
         async function execute() {
             const amount = document.getElementById("ex").value;
             
-            console.log(await StepUpTokenSaleContract.executeTransaction(amount));
+            console.log(await MultiSigWallet.executeTransaction(amount));
         }
         async function revert() {
             const amount = document.getElementById("re").value;
             
-            console.log(await StepUpTokenSaleContract.revertApproval(amount));
+            console.log(await MultiSigWallet.revertApproval(amount));
         }
         async function transactions() {
             const amount = document.getElementById("tr").value;
             
-            console.log(await StepUpTokenSaleContract.transactions(amount));
+            console.log(await MultiSigWallet.transactions(amount));
         }
 
         async function ownerApprovals() {
             const amount = document.getElementById("oa1").value;
             const amount1 = document.getElementById("oa2").value;
             
-            console.log(await StepUpTokenSaleContract.ownerApprovals(amount,amount1));
+            console.log(await MultiSigWallet.ownerApprovals(amount,amount1));
         }
 
         async function submit() {
@@ -250,7 +250,7 @@
             const amount1 = document.getElementById("submit2").value;
             const amount2 = document.getElementById("submit3").value;
             
-            console.log(await StepUpTokenSaleContract.submitTransaction(amount,amount1,amount2));
+            console.log(await MultiSigWallet.submitTransaction(amount,amount1,amount2));
         }
 
 
@@ -258,8 +258,8 @@
 
  
         async function doInitMetamask() {
-            StepUpTokenSaleContractAddress = "0x725BbA87b42FA8ec069eF478Ab820d2DdF1a1FdF";
-            StepUpTokenSaleContractABI = [
+            MultiSigWalletAddress = "0x725BbA87b42FA8ec069eF478Ab820d2DdF1a1FdF";
+            MultiSigWalletABI = [
             {
       "inputs": [
         {
@@ -452,10 +452,10 @@
             signer = await provider.getSigner(accounts[0]);
             console.log(signer);
  
-            console.log(StepUpTokenSaleContractAddress);
-            console.log(StepUpTokenSaleContractABI);
+            console.log(MultiSigWalletAddress);
+            console.log(MultiSigWalletABI);
  
-            StepUpTokenSaleContract = new ethers.Contract( StepUpTokenSaleContractAddress, StepUpTokenSaleContractABI, signer);
+            MultiSigWallet = new ethers.Contract( MultiSigWalletAddress, MultiSigWalletABI, signer);
         }
         doInitMetamask();
     </script>
