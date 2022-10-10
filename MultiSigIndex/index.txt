@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>My First dApp</title>
+        <style>
+            body {
+                text-align: center;
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            div {
+                width: 20%;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+                margin: 10px 0px 5px 0px;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div>
+            <h1>Buyer Zone</h1>
+            <button onclick="buy()">getOwners</button>
+            <label for="currentPrice" id="currentPrice"> </label> <br />
+            <button onclick="appcount()"> ApprovalCount</button>
+            <label for="ow" id="ow"> </label> <br />
+
+                <input type="text" id="submit1" placeholder="to" />
+                <input type="text" id="submit2" placeholder="amount"/>
+                <input type="text" id="submit3" placeholder="data"/>
+                <button onclick="submit()">submitTransaction</button>
+      
+
+            <input type="text" id="ap" />
+            <button onclick="approve()">approve</button>
+            <input type="text" id="ex" />
+            <button onclick="execute()">executeTransaction</button>
+            <input type="text" id="re" />
+            <button onclick="revert()">revertApproval</button>
+            <input type="text" id="tr" />
+            <button onclick="transactions()">transactions</button>
+        </div>
+        <div>
+            
+            <input type="text" id="oa1" placeholder="index" />
+            <input type="text" id="oa2" placeholder="address"/>
+            <button onclick="ownerApprovals()">ownerApprovals</button>
+           
+        </div>
+    </body>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.1/ethers.umd.js"
+        type="application/javascript"
+
+    ></script>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" crossorigin="anonymous"></script> -->
+ 
+    <script>
+ 
+ 
+        let StepUpTokenSaleContract;
+        let signer;
+        let provider;
+        let accounts;
+        let StepUpTokenSaleContractABI;
+        let StepUpTokenSaleContractAddress;
+       // let data="0xe73620c3000000000000000000000000000000000000000000000000000000000000007b";
+       // let aamount2 ="0xCfAefD773F5ec5A7a92DDA13da7890B473B66180";
+        // async function doInit() {
+        //     StepUpTokenSaleContractAddress = "'0xD711817192CEF68CF171d4a5dE71dca824acF23D'";
+        //     StepUpTokenSaleContractABI = [
+        //     {
+        //     	"inputs": [
+        //     		{
+        //     			"internalType": "address",
+        //     			"name": "_owner",
+        //     			"type": "address"
+        //     		},
+        //     		{
+        //     			"internalType": "address",
+        //     			"name": "_token",
+        //     			"type": "address"
+        //     		}
+        //     	],
+        //     	"stateMutability": "nonpayable",
+        //     	"type": "constructor"
+        //     },
+        //     {
+        //     	"anonymous": false,
+        //     	"inputs": [
+        //     		{
+        //     			"indexed": true,
+        //     			"internalType": "address",
+        //     			"name": "buyer",
+        //     			"type": "address"
+        //     		},
+        //     		{
+        //     			"indexed": true,
+        //     			"internalType": "uint256",
+        //     			"name": "saleCount",
+        //     			"type": "uint256"
+        //     		}
+        //     	],
+        //     	"name": "TokenSale",
+        //     	"type": "event"
+        //     },
+        //     {
+        //     	"anonymous": false,
+        //     	"inputs": [
+        //     		{
+        //     			"indexed": true,
+        //     			"internalType": "address",
+        //     			"name": "buyer",
+        //     			"type": "address"
+        //     		},
+        //     		{
+        //     			"indexed": true,
+        //     			"internalType": "uint256",
+        //     			"name": "saleCount",
+        //     			"type": "uint256"
+        //     		}
+        //     	],
+        //     	"name": "TokenSaleFailed",
+        //     	"type": "event"
+        //     },
+        //     {
+        //     	"inputs": [],
+        //     	"name": "buyTokens",
+        //     	"outputs": [],
+        //     	"stateMutability": "payable",
+        //     	"type": "function"
+        //     },
+        //     {
+        //     	"inputs": [],
+        //     	"name": "owner",
+        //     	"outputs": [
+        //     		{
+        //     			"internalType": "address",
+        //     			"name": "",
+        //     			"type": "address"
+        //     		}
+        //     	],
+        //     	"stateMutability": "view",
+        //     	"type": "function"
+        //     },
+        //     {
+        //     	"inputs": [],
+        //     	"name": "pricePerEth",
+        //     	"outputs": [
+        //     		{
+        //     			"internalType": "uint256",
+        //     			"name": "",
+        //     			"type": "uint256"
+        //     		}
+        //     	],
+        //     	"stateMutability": "view",
+        //     	"type": "function"
+        //     },
+        //     {
+        //     	"inputs": [],
+        //     	"name": "token",
+        //     	"outputs": [
+        //     		{
+        //     			"internalType": "contract IERC20",
+        //     			"name": "",
+        //     			"type": "address"
+        //     		}
+        //     	],
+        //     	"stateMutability": "view",
+        //     	"type": "function"
+        //     }   
+        // ]    
+        //     provider = new ethers.providers.JsonRpcProvider("http://localhost:7545");
+        //     console.log(provider);
+        //     accounts = await provider.listAccounts();
+        //     console.log(accounts);
+ 
+        //     signer = await provider.getSigner(accounts[1]);
+        //     console.log(signer);
+ 
+        //     console.log(StepUpTokenSaleContractAddress);
+        //     console.log(StepUpTokenSaleContractABI);
+ 
+        //     StepUpTokenSaleContract = new ethers.Contract( StepUpTokenSaleContractAddress, StepUpTokenSaleContractABI, signer);
+        // }
+ 
+ 
+        // doInit();
+ 
+    
+ 
+        async function buy() {
+            const price = await StepUpTokenSaleContract.getOwners();
+            console.log(price.toString());
+			alert(price.toString());
+            
+        }
+        async function appcount() {
+            const price = await StepUpTokenSaleContract.approvalcount();
+             console.log(price.toString());
+             alert(price.toString());
+		 }
+
+         async function transfer() {
+        //     signer = await provider.getSigner(accounts[1]);
+        //     console.log(signer);
+        //     StepUpTokenSaleContract = new ethers.Contract( StepUpTokenSaleContractAddress, StepUpTokenSaleContractABI, signer);
+        //     const amount = document.getElementById("purchaseAmount").value;
+        //  //   let bigAmount = ethers.BigNumber.from(amount).mul(ethers.BigNumber.from("1000000000000000000"));
+        //     await StepUpTokenSaleContract.submitTransaction(a,amount,data);
+  
+        }
+        async function approve() {
+            const amount = document.getElementById("ap").value;
+            
+            console.log(await StepUpTokenSaleContract.approveTransaction(amount));
+        }
+        async function execute() {
+            const amount = document.getElementById("ex").value;
+            
+            console.log(await StepUpTokenSaleContract.executeTransaction(amount));
+        }
+        async function revert() {
+            const amount = document.getElementById("re").value;
+            
+            console.log(await StepUpTokenSaleContract.revertApproval(amount));
+        }
+        async function transactions() {
+            const amount = document.getElementById("tr").value;
+            
+            console.log(await StepUpTokenSaleContract.transactions(amount));
+        }
+
+        async function ownerApprovals() {
+            const amount = document.getElementById("oa1").value;
+            const amount1 = document.getElementById("oa2").value;
+            
+            console.log(await StepUpTokenSaleContract.ownerApprovals(amount,amount1));
+        }
+
+        async function submit() {
+            const amount = document.getElementById("submit1").value;
+            const amount1 = document.getElementById("submit2").value;
+            const amount2 = document.getElementById("submit3").value;
+            
+            console.log(await StepUpTokenSaleContract.submitTransaction(amount,amount1,amount2));
+        }
+
+
+
+
+ 
+        async function doInitMetamask() {
+            StepUpTokenSaleContractAddress = "0x725BbA87b42FA8ec069eF478Ab820d2DdF1a1FdF";
+            StepUpTokenSaleContractABI = [
+            {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "_owners",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint8",
+          "name": "count",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "approvalcount",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "ownerApprovals",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "transactions",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "executed",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "approvals",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive",
+      "payable": true
+    },
+    {
+      "inputs": [],
+      "name": "getOwners",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "submitTransaction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tID",
+          "type": "uint256"
+        }
+      ],
+      "name": "approveTransaction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tID",
+          "type": "uint256"
+        }
+      ],
+      "name": "executeTransaction",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tID",
+          "type": "uint256"
+        }
+      ],
+      "name": "revertApproval",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+                ]
+ 
+            provider = new ethers.providers.Web3Provider(web3.currentProvider);
+ 
+            try {
+                await provider.send("eth_requestAccounts", []);
+            } catch {
+                console.log("Connection error");
+            }
+ 
+            accounts = await provider.listAccounts();
+            console.log(accounts);
+ 
+            signer = await provider.getSigner(accounts[0]);
+            console.log(signer);
+ 
+            console.log(StepUpTokenSaleContractAddress);
+            console.log(StepUpTokenSaleContractABI);
+ 
+            StepUpTokenSaleContract = new ethers.Contract( StepUpTokenSaleContractAddress, StepUpTokenSaleContractABI, signer);
+        }
+        doInitMetamask();
+    </script>
+</html>
