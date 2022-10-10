@@ -25,7 +25,7 @@
     <body>
 
         <div>
-            <h1>Buyer Zone</h1>
+            <h1>MultiSigWallet</h1></h1>
             <button onclick="buy()">getOwners</button>
             <label for="currentPrice" id="currentPrice"> </label> <br />
             <button onclick="appcount()"> ApprovalCount</button>
