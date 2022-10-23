@@ -4,7 +4,7 @@
 **Project Status** : 
    -------------
 
-   >completed and working as expected.
+   >completed.
 ------------------
 **Deployment Summary** :
    -----------------
